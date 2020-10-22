@@ -20,6 +20,22 @@ class _AddEventState extends State<AddEvent> {
     child: Divider(),
   );
 
+  TextStyle _style = TextStyle(fontFamily: 'Product Sans', color: Colors.grey);
+
+  List<String> _actions = [
+    'Shower',
+    'Breakfast',
+    'Lunch',
+    'Nap',
+    'Supper',
+    'Chores',
+    'Bedtime',
+    'Movie',
+    'Code',
+    'Game',
+    'Wake up',
+  ];
+
   void onTimeChanged(TimeOfDay newTime) {
     setState(() {
       _time = newTime;
@@ -35,6 +51,7 @@ class _AddEventState extends State<AddEvent> {
 
   @override
   Widget build(BuildContext context) {
+    _actions.sort();
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -45,7 +62,7 @@ class _AddEventState extends State<AddEvent> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         leading: GestureDetector(
           child: Container(
-            margin: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.grey[200],
@@ -66,7 +83,6 @@ class _AddEventState extends State<AddEvent> {
                     style: TextStyle(
                       fontFamily: 'Product Sans',
                       color: Colors.blue,
-                      fontWeight: FontWeight.bold,
                     ),
                   ))
               : Container(),
@@ -85,7 +101,7 @@ class _AddEventState extends State<AddEvent> {
               children: [
                 Text(
                   'Title',
-                  style: TextStyle(fontFamily: 'Product Sans'),
+                  style: _style,
                 ),
                 SizedBox(height: 7.0),
                 Row(
@@ -110,18 +126,7 @@ class _AddEventState extends State<AddEvent> {
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: DropDown(
                         hint: Text('Quick pick'),
-                        items: [
-                          'Bath',
-                          'Breakfast',
-                          'Lunch',
-                          'Snacks',
-                          'Supper',
-                          'Chores',
-                          'Bedtime',
-                          'Movie',
-                          'Code',
-                          'Game'
-                        ],
+                        items: _actions,
                         onChanged: (value) {
                           setState(() {
                             title = value;
@@ -147,7 +152,7 @@ class _AddEventState extends State<AddEvent> {
               children: [
                 Text(
                   'Description',
-                  style: TextStyle(fontFamily: 'Product Sans'),
+                  style: _style,
                 ),
                 SizedBox(height: 7.0),
                 // description field
@@ -182,7 +187,7 @@ class _AddEventState extends State<AddEvent> {
               children: [
                 Text(
                   'Time',
-                  style: TextStyle(fontFamily: 'Product Sans'),
+                  style: _style,
                 ),
                 SizedBox(
                   height: 7.0,
@@ -200,8 +205,9 @@ class _AddEventState extends State<AddEvent> {
                     ),
 
                     // change time
-                    CupertinoButton.filled(
+                    CupertinoButton(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      color: Colors.teal,
                       onPressed: () {
                         Navigator.of(context).push(
                           showPicker(
@@ -233,7 +239,7 @@ class _AddEventState extends State<AddEvent> {
               children: [
                 Text(
                   'Date',
-                  style: TextStyle(fontFamily: 'Product Sans'),
+                  style: _style,
                 ),
                 SizedBox(
                   height: 7.0,
@@ -251,8 +257,9 @@ class _AddEventState extends State<AddEvent> {
                     ),
 
                     // choose date
-                    CupertinoButton.filled(
+                    CupertinoButton(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      color: Colors.teal,
                       onPressed: () {
                         _showDatePicker();
                       },
@@ -285,11 +292,12 @@ class _AddEventState extends State<AddEvent> {
     if (result != 0) {
       // Success
       Navigator.pop(context, true);
-      //showToast(context: context, message: 'Event added');
+
     } else {
       // Failure
       Navigator.pop(context, false);
-      showToast(context: context, message: 'Something went wrong');
+      showToast(context: context, message: 'Event not added');
+
     }
   }
 
@@ -300,11 +308,9 @@ class _AddEventState extends State<AddEvent> {
       ],
       content: Container(
         width: double.maxFinite,
-        height: 80.0,
         child: DatePicker(
           DateTime.now(),
-          width: 60,
-          height: 80,
+          height: 85.0,
           initialSelectedDate: DateTime.now(),
           selectionColor: Colors.black,
           selectedTextColor: Colors.white,
@@ -319,4 +325,5 @@ class _AddEventState extends State<AddEvent> {
     );
     showDialog(context: context, builder: (_) => alertDialog);
   }
+
 }
