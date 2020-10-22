@@ -23,14 +23,26 @@ dependencies:
   flushbar: ^1.10.4
   focused_menu: ^1.0.1
   modal_bottom_sheet: ^0.2.0+1
+  shared_preferences: ^0.5.12
+  after_layout: ^1.0.7+2
+  draggable_fab: ^0.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.8.1"
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
 
 # The following section is specific to Flutter.
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/icon/icon.png
 
   fonts:
     - family: Product Sans
