@@ -17,3 +17,4 @@ export 'package:timeline_list/timeline_model.dart';
 export 'package:shared_preferences/shared_preferences.dart';
 export 'package:after_layout/after_layout.dart';
 export 'package:draggable_fab/draggable_fab.dart';
+export 'package:table_calendar/table_calendar.dart';
