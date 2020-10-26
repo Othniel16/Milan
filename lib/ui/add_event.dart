@@ -7,7 +7,7 @@ class AddEvent extends StatefulWidget {
   _AddEventState createState() => _AddEventState();
 }
 
-class _AddEventState extends State<AddEvent> {
+class _AddEventState extends State<AddEvent> with AfterLayoutMixin<AddEvent> {
   TimeOfDay _time = TimeOfDay.now();
   DateTime _selectedDate = DateTime.now();
   String title = '';
@@ -15,6 +15,7 @@ class _AddEventState extends State<AddEvent> {
   DatabaseHelper helper = DatabaseHelper();
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  DateTime startDate = DateTime.now();
   Widget divider = Container(
     margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
     child: Divider(),
@@ -42,6 +43,26 @@ class _AddEventState extends State<AddEvent> {
     });
   }
 
+  Future checkFirstSeen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _seen = (prefs.getBool('seen') ?? false);
+
+    if (_seen) {
+      // just pass initial date on
+      String savedDate = prefs.getString('startDate');
+      setState(() {
+        startDate = DateTime.parse(savedDate);
+      });
+    } else {
+      // set initial date to DateTime.now()
+      prefs.setString('startDate', startDate.toString());
+    }
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) => checkFirstSeen();
+
+
   @override
   void dispose() {
     titleController.dispose();
@@ -51,6 +72,7 @@ class _AddEventState extends State<AddEvent> {
 
   @override
   Widget build(BuildContext context) {
+    int daysSinceFirstLaunch = DateTime.now().difference(startDate).inDays;
     _actions.sort();
     return Scaffold(
       appBar: AppBar(
@@ -261,7 +283,7 @@ class _AddEventState extends State<AddEvent> {
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       color: Colors.teal,
                       onPressed: () {
-                        _showDatePicker();
+                        _showDatePicker(daysSinceFirstLaunch);
                       },
                       child: Text(
                         'Change',
@@ -301,7 +323,7 @@ class _AddEventState extends State<AddEvent> {
     }
   }
 
-  void _showDatePicker() {
+  void _showDatePicker(int daysSinceFirstLaunch) {
     AlertDialog alertDialog = AlertDialog(
       actions: [
         FlatButton(onPressed: () => Navigator.pop(context), child: Text('OK'))
@@ -312,6 +334,8 @@ class _AddEventState extends State<AddEvent> {
           DateTime.now(),
           height: 85.0,
           initialSelectedDate: DateTime.now(),
+          daysCount:
+          22 + (21 * ((daysSinceFirstLaunch / 21) ~/ 21)),
           selectionColor: Colors.black,
           selectedTextColor: Colors.white,
           onDateChange: (date) {
