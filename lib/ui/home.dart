@@ -7,40 +7,33 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
+class _HomeState extends State<Home> {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  ScrollController _scrollController = new ScrollController();
+  ScrollController _scrollController = ScrollController();
   DateTime _selectedDate = DateTime.now();
-  DateTime startDate = DateTime.now();
+
   List<Event> eventList = [];
+  CalendarController _calendarController;
 
-  Future checkFirstSeen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = (prefs.getBool('seen') ?? false);
+  bool showJumpToToday = false;
 
-    if (_seen) {
-      // just pass initial date on
-      String savedDate = prefs.getString('startDate');
-      setState(() {
-        startDate = DateTime.parse(savedDate);
-      });
-    } else {
-      // set initial date to DateTime.now()
-      prefs.setString('startDate', startDate.toString());
-    }
+  @override
+  void initState() {
+    _calendarController = CalendarController();
+    super.initState();
   }
 
   @override
-  void afterFirstLayout(BuildContext context) => checkFirstSeen();
+  void dispose() {
+    _calendarController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    int daysSinceFirstLaunch = DateTime.now().difference(startDate).inDays;
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: GestureDetector(
             child: Row(
@@ -64,6 +57,21 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               ],
             ),
             onTap: _scrollToTop),
+        actions: [
+          showJumpToToday
+              ? IconButton(
+                  tooltip: 'Jump to Today',
+                  color: Colors.black,
+                  icon: Icon(Icons.calendar_today_outlined),
+                  onPressed: () {
+                    setState(() {
+                      _selectedDate = DateTime.now();
+                      _calendarController.setSelectedDay(_selectedDate);
+                      showJumpToToday = false;
+                    });
+                  })
+              : SizedBox.shrink()
+        ],
       ),
       body: FutureBuilder(
           future: databaseHelper.getEvents(),
@@ -74,29 +82,10 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
               return ListView(
                 controller: _scrollController,
                 physics: BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 30.0, top: 10.0),
+                padding: const EdgeInsets.only(bottom: 30.0),
                 children: [
-                  // date selector
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15.0),
-                    child: DatePicker(
-                      DateTime(startDate.year, startDate.month, startDate.day),
-                      daysCount:
-                          22 + (21 * ((daysSinceFirstLaunch / 21) ~/ 21)),
-                      initialSelectedDate: DateTime.now(),
-                      height: 85.0,
-                      width: 70.0,
-                      selectionColor: Color(0xff606060),
-                      selectedTextColor: Colors.white,
-                      onDateChange: (date) {
-                        // New date selected
-                        setState(() {
-                          _selectedDate = date;
-                        });
-                        updateEventList();
-                      },
-                    ),
-                  ),
+                  // calendar
+                  _buildTableCalendar(),
 
                   // header
                   Padding(
@@ -258,7 +247,7 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
       ),
       iconBackground: Colors.transparent,
       icon: Icon(
-        Icons.calendar_today_rounded,
+        Icons.calendar_view_day,
         color: Colors.black,
       ),
       position: index % 2 == 0
@@ -284,5 +273,40 @@ class _HomeState extends State<Home> with AfterLayoutMixin<Home> {
     } catch (error) {
       showToast(context: context, message: 'Oops, an error occurred');
     }
+  }
+
+  // Simple TableCalendar configuration
+  Widget _buildTableCalendar() {
+    return TableCalendar(
+      initialCalendarFormat: CalendarFormat.week,
+      calendarController: _calendarController,
+      startingDayOfWeek: StartingDayOfWeek.monday,
+      calendarStyle: CalendarStyle(
+        selectedColor: Colors.black,
+        todayColor: Theme.of(context).primaryColor,
+        markersColor: Colors.brown[700],
+        outsideDaysVisible: false,
+      ),
+      headerStyle: HeaderStyle(
+        formatButtonTextStyle:
+            TextStyle().copyWith(color: Colors.white, fontSize: 15.0),
+        formatButtonDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
+      onDaySelected: (DateTime date, List events, List holidays) {
+        if (date.day != _selectedDate.day) {
+          setState(() {
+            _selectedDate = date;
+            showJumpToToday = true;
+          });
+        } else {
+          setState(() {
+            showJumpToToday = false;
+          });
+        }
+      },
+    );
   }
 }
