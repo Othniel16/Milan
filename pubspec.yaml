@@ -24,9 +24,9 @@ dependencies:
   focused_menu: ^1.0.1
   modal_bottom_sheet: ^0.2.0+1
   shared_preferences: ^0.5.12
-  after_layout: ^1.0.7+2
   draggable_fab: ^0.1.1
   table_calendar: ^2.3.0
+  after_layout: ^1.0.7+2
 
 dev_dependencies:
   flutter_test:

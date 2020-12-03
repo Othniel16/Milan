@@ -96,7 +96,6 @@ class _HomeState extends State<Home> {
                         fontSize: 30.0,
                         fontFamily: 'Product Sans',
                         color: Color(0xff606060),
-                        //fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

@@ -7,7 +7,7 @@ class AddEvent extends StatefulWidget {
   _AddEventState createState() => _AddEventState();
 }
 
-class _AddEventState extends State<AddEvent> with AfterLayoutMixin<AddEvent> {
+class _AddEventState extends State<AddEvent> {
   TimeOfDay _time = TimeOfDay.now();
   DateTime _selectedDate = DateTime.now();
   String title = '';
@@ -42,26 +42,6 @@ class _AddEventState extends State<AddEvent> with AfterLayoutMixin<AddEvent> {
       _time = newTime;
     });
   }
-
-  Future checkFirstSeen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = (prefs.getBool('seen') ?? false);
-
-    if (_seen) {
-      // just pass initial date on
-      String savedDate = prefs.getString('startDate');
-      setState(() {
-        startDate = DateTime.parse(savedDate);
-      });
-    } else {
-      // set initial date to DateTime.now()
-      prefs.setString('startDate', startDate.toString());
-    }
-  }
-
-  @override
-  void afterFirstLayout(BuildContext context) => checkFirstSeen();
-
 
   @override
   void dispose() {
@@ -314,12 +294,10 @@ class _AddEventState extends State<AddEvent> with AfterLayoutMixin<AddEvent> {
     if (result != 0) {
       // Success
       Navigator.pop(context, true);
-
     } else {
       // Failure
       Navigator.pop(context, false);
       showToast(context: context, message: 'Event not added');
-
     }
   }
 
@@ -334,8 +312,7 @@ class _AddEventState extends State<AddEvent> with AfterLayoutMixin<AddEvent> {
           DateTime.now(),
           height: 85.0,
           initialSelectedDate: DateTime.now(),
-          daysCount:
-          22 + (21 * ((daysSinceFirstLaunch / 21) ~/ 21)),
+          daysCount: 22 + (21 * ((daysSinceFirstLaunch / 21) ~/ 21)),
           selectionColor: Colors.black,
           selectedTextColor: Colors.white,
           onDateChange: (date) {
@@ -349,5 +326,4 @@ class _AddEventState extends State<AddEvent> with AfterLayoutMixin<AddEvent> {
     );
     showDialog(context: context, builder: (_) => alertDialog);
   }
-
 }
